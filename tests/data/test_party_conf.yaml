@@ -1,0 +1,47 @@
+title: Chat Session Title
+purpose: Chat Session Purpose
+status: initialized
+attendees:
+  - type: LLMAgent
+    name: AI Agent 1
+    role: product owner
+    instruction:
+      target: Increase user engagement
+      version: 1.0.0
+      hash: "0x1234567890abcdef"
+      text: Behave as a product owner to increase user engagement
+    attendee_params: {}
+    llm_api: openai
+    llm_api_params:
+      model: gpt-3.5-turbo-1106
+      temperature: 0.5
+      top_p: 0.5
+      frequency_penalty: 0
+      presence_penalty: 0
+      retries: 3
+      sleep_period: 5
+  - type: LLMAgent
+    name: AI Agent 2
+    role: engineer
+    instruction:
+      target: Develop a new feature
+      version: 1.0.0
+      hash: "0x9876543210fedcba"
+      text: Behave as an engineer
+    attendee_params: {}
+    llm_api: openai
+    llm_api_params:
+      model: gpt-3.5-turbo-1106
+      temperature: 0.2
+      top_p: 0.2
+      frequency_penalty: 0
+      presence_penalty: 0
+      retries: 3
+      sleep_period: 5
+settings:
+  max_sent_message: 2
+chat_history: []
+finish_reason: null
+start_at: null
+updated_at: null
+end_at: null
