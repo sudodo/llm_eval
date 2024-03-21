@@ -3,46 +3,8 @@ import json
 from typing import List, Dict
 from llm_party import initiate_session as start_session
 import yaml
+import datetime
 
-
-def load_instructions(init_instr_dir: str) -> List[str]:
-    """
-    Load initial instructions for AI agents from the specified directory in alphabetical order.
-
-    Args:
-        init_instr_dir (str): Directory containing initial instruction files.
-
-    Returns:
-        List[str]: List of initial instructions sorted alphabetically by file name.
-    """
-    instructions = []
-    file_names = sorted(os.listdir(init_instr_dir))  # Sort file names alphabetically
-    for file_name in file_names:
-        file_path = os.path.join(init_instr_dir, file_name)
-        with open(file_path, 'r') as file:
-            instructions.append(file.read())
-    return instructions
-
-def compile_party_config(party_conf: str, init_instr: List[str]) -> Dict:
-    """
-    Compile the configuration for the llm_party library by merging initial instructions.
-
-    Args:
-        party_conf (str): Path to the party configuration file.
-        init_instr (List[str]): List of initial instructions for AI agents.
-
-    Returns:
-        Dict: Compiled party configuration dictionary.
-    """
-    with open(party_conf, 'r') as file:
-        party_conf_dict = yaml.safe_load(file)
-
-    for i, instr in enumerate(init_instr):
-        party_conf_dict['attendees'][i]['instruction']['text'] = instr
-
-    return party_conf_dict
-
-import datetime  # Add this import at the beginning of your file
 
 def conduct_chat_session(party_conf_dict: Dict, exp_conf: Dict, output_dir: str, verbose: bool):
     """
@@ -84,3 +46,40 @@ def conduct_chat_session(party_conf_dict: Dict, exp_conf: Dict, output_dir: str,
         # Save the compiled configuration for llm_party library with timestamp in filename
         with open(file_path_of_party_conf_dict, 'w') as file:
             yaml.dump(party_conf_dict, file)
+
+def load_instructions(init_instr_dir: str) -> List[str]:
+    """
+    Load initial instructions for AI agents from the specified directory in alphabetical order.
+
+    Args:
+        init_instr_dir (str): Directory containing initial instruction files.
+
+    Returns:
+        List[str]: List of initial instructions sorted alphabetically by file name.
+    """
+    instructions = []
+    file_names = sorted(os.listdir(init_instr_dir))  # Sort file names alphabetically
+    for file_name in file_names:
+        file_path = os.path.join(init_instr_dir, file_name)
+        with open(file_path, 'r') as file:
+            instructions.append(file.read())
+    return instructions
+
+def compile_party_config(party_conf: str, init_instr: List[str]) -> Dict:
+    """
+    Compile the configuration for the llm_party library by merging initial instructions.
+
+    Args:
+        party_conf (str): Path to the party configuration file.
+        init_instr (List[str]): List of initial instructions for AI agents.
+
+    Returns:
+        Dict: Compiled party configuration dictionary.
+    """
+    with open(party_conf, 'r') as file:
+        party_conf_dict = yaml.safe_load(file)
+
+    for i, instr in enumerate(init_instr):
+        party_conf_dict['attendees'][i]['instruction']['text'] = instr
+
+    return party_conf_dict

@@ -4,6 +4,19 @@ import argparse
 import yaml
 from llm_eval.service import load_instructions, compile_party_config, conduct_chat_session
 
+def run_exp(init_instr_dir, party_conf, exp_conf, output_dir, verbose):
+    # Load initial instructions
+    init_instr = load_instructions(init_instr_dir)
+
+    # Compile the configuration for llm_party library
+    party_conf_dict = compile_party_config(party_conf, init_instr)
+
+    # Load the test configuration
+    with open(exp_conf, 'r') as file:
+        exp_conf_dict = yaml.safe_load(file)
+
+    # Conduct the chat session based on the test configuration
+    conduct_chat_session(party_conf_dict, exp_conf_dict, output_dir, verbose)
 
 def main():
     """
@@ -28,17 +41,4 @@ def main():
     parser.add_argument('--output-dir', '-o', type=str, default='.', help='Directory to save output files')
 
     args = parser.parse_args()
-
-    # Load initial instructions
-    init_instr = load_instructions(args.init_instr_dir)
-
-    # Compile the configuration for llm_party library
-    party_conf_dict = compile_party_config(args.party_conf, init_instr)
-
-    # Load the test configuration
-    with open(args.exp_conf, 'r') as file:
-        exp_conf = yaml.safe_load(file)
-
-    # Conduct the chat session based on the test configuration
-    conduct_chat_session(party_conf_dict, exp_conf, args.output_dir, args.verbose)
-
+    run_exp(args.init_instr_dir, args.party_conf, args.exp_conf, args.output_dir, args.verbose)
