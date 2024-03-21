@@ -65,7 +65,6 @@ Note that the above pseudo code is just a rough sketch and may not be correct. W
 
 I want to create a python script with the following requirements.
 
-
 ### Functionality
 
 - Users evaluate if two AI agents conduct high-quality chat session. To this end, this script conducts a chat session between two AI agents and provides the users with the chat history.
@@ -100,9 +99,85 @@ It receives parameters as follows:
 - `--verbose` (or `-v`): a flag to enable verbose mode
 - `--output-dir` (or `-o`): the directory to save the output files (optional)
 
-
 ### Methods
 
 - `main`: the main method of this script. It parses the command-line arguments and calls the `run` method.
 - `run`: the controller method of this script.
 - `conduct_session`
+
+## Q
+
+I am developing python project named `llm_eval`. I want to add a new python script with the following requirements.
+
+### Functionality
+
+- Like the script provided in `main.py`, this new script also allows users evaluate if two AI agents conduct high-quality chat session. To this end, this script conducts a chat session between two AI agents and provides the users with the chat history.
+- By executing this script, it conducts multiple *experiment suites* that consists of multiple chat sessions between two AI agents.
+- Here is a sample configuration file for the experiment suite list:
+
+```yaml
+# sample of "exp suites conf"
+- exp suite: Experiment Suite 1
+  # sessions are conducted by various agents and clients pair with the same configuration
+  init instr dirs:
+    - "/path/to/dir" # initial instruction dir 1. Typically used for agent's initial instruction
+    - "/path/to/dir" # initial instruction dir 2. Typically used for client's initial instruction
+  party conf: "/path/to/file.yaml"
+  exp conf: "/path/to/file.yaml"
+- exp suite: Experiment Suite 2
+  # sessions are conducted by various agents and clients pair with the same configuration
+  init instr dirs:
+    - "/path/to/dir" # initial instruction dir 1. Typically used for agent's initial instruction
+    - "/path/to/dir" # initial instruction dir 2. Typically used for client's initial instruction
+  party conf: "/path/to/file.yaml"
+  exp conf: "/path/to/file.yaml"
+```
+
+- Each element in "exp suites conf" represents the configuration of each experiment suite that consists of the following parameters:
+  1. The initial instruction files located in "init instr dir 1"
+  2. The second initial instruction file located in "init instr dir 2"
+  3. party conf file specified as the value of "party conf"
+  4. exp conf file specified as the value of "exp conf"
+- To conduct each experiment suite, call `run_exp_suite` in `controller.py`. This method is still under development and not yet fully implemented yet. We need to implement placeholder method, add Docstring, error handling, and so on.
+
+### Parameters
+
+It receives parameters as follows:
+
+- `--exp-suites-conf` (or `-c`): the configuration file for the experiment suites (required)
+- `--verbose` (or `-v`): a flag to enable verbose mode
+- `--output-dir` (or `-o`): the directory to save the output files (required)
+
+### Pseudo code
+
+Roughly speaking, the pseudo code for this script might be as follows (But, I am not sure if this is correct. Please correct it if I am wrong):
+
+```python
+def main():
+    # Parse the command-line arguments
+    exp_suites_conf, verbose, output_dir = ...
+
+    # Load the configuration file for the experiment suites
+    exp_suite_conf_list = yaml.load(exp_suites_conf)
+    run(exp_suite_conf_list, verbose, output_dir)
+
+def run(exp_suite_conf_list, verbose, output_dir):
+    # Conduct each experiment suite
+    for exp_suite in exp_suite_conf_list:
+        run_exp_suite(exp_suite, verbose, output_dir)
+
+def run_exp_suite(exp_suite, verbose, output_dir):
+    init_instr_dirs = exp_suite["init instr dirs"]
+    party_conf = exp_suite["party conf"]
+    exp_conf = exp_suite["exp conf"]
+
+    # Make the list of tuples by generating all combinations of the initial instruction directories. See the following example:
+    # init_instr_dirs = ["/path/to/dir1", "/path/to/dir2"]
+    # Assume that dir 1 contains 2 files and dir 2 contains 2 files. Then, the list of tuples is as follows:
+    # [("path/to/dir1/file1.md", "path/to/dir2/file1.md"), ("path/to/dir1/file1.md", "path/to/dir2/file2.md"), ("path/to/dir1/file2.md", "path/to/dir2/file1.md"), ("path/to/dir1/file2.md", "path/to/dir2/file2.md")]
+    init_instr_lists = make_init_instr_lists(init_instr_dirs)
+
+    for init_instr in init_instr_lists:
+        # Conduct the chat session
+        run_exp_with_single_party_conf(init_instr, party_conf, exp_conf, verbose, output_dir)
+```
