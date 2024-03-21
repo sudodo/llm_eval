@@ -4,7 +4,16 @@ import argparse
 import yaml
 from llm_eval.service import load_instructions, compile_party_config, conduct_chat_session
 
+
 def run_exp(init_instr_dir, party_conf, exp_conf, output_dir, verbose):
+    """
+
+    Party configuration must contain exactly two attendees: one for the AI agent role and one for the human client role.
+
+    :param init_instr_dir: Directory containing initial instructions for AI agents. For example, init_instr_dir contains the following files:
+        - counselor.md
+        - client.md
+    """
     # Load initial instructions
     init_instr = load_instructions(init_instr_dir)
 
