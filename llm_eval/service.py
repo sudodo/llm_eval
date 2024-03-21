@@ -50,20 +50,26 @@ def conduct_chat_session(party_conf_dict: Dict, exp_conf: Dict, output_dir: str,
 
 def load_instructions(init_instr_dir: str) -> List[str]:
     """
-    Load initial instructions for AI agents from the specified directory in alphabetical order.
+    Load initial instructions for AI agents from the specified directory in alphabetical order,
+    ignoring hidden files like '.DS_Store'.
 
     Args:
         init_instr_dir (str): Directory containing initial instruction files.
 
     Returns:
-        List[str]: List of initial instructions sorted alphabetically by file name.
+        List[str]: List of initial instructions sorted alphabetically by file name, excluding hidden files.
     """
     instructions = []
-    file_names = sorted(os.listdir(init_instr_dir))  # Sort file names alphabetically
+    # Filter out hidden files starting with '.'
+    file_names = sorted([file for file in os.listdir(init_instr_dir) if not file.startswith('.')])
     for file_name in file_names:
         file_path = os.path.join(init_instr_dir, file_name)
-        with open(file_path, 'r') as file:
-            instructions.append(file.read())
+        try:
+            with open(file_path, 'r') as file:
+                instructions.append(file.read())
+        except:
+            print(f"Error reading file: {file_path}")
+            raise
     return instructions
 
 def compile_party_config(party_conf: str, init_instr_list: List[str]) -> Dict:
