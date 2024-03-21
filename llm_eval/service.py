@@ -1,9 +1,10 @@
 import os
 import json
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from llm_party import initiate_session as start_session
 import yaml
 import datetime
+import itertools
 
 
 def conduct_chat_session(party_conf_dict: Dict, exp_conf: Dict, output_dir: str, verbose: bool):
@@ -85,3 +86,41 @@ def compile_party_config(party_conf: str, init_instr_list: List[str]) -> Dict:
         party_conf_dict['attendees'][i]['instruction']['text'] = instr
 
     return party_conf_dict
+
+def make_init_instr_lists(init_instr_dirs: List[str]) -> List[Tuple[str, ...]]:
+    """
+    Generate all combinations of initial instruction files from the provided directories,
+    with added error handling for invalid directories, empty directories, and inconsistent file counts.
+
+    Args:
+        init_instr_dirs (List[str]): A list of directories, each containing initial instruction files.
+
+    Returns:
+        List[Tuple[str, ...]]: A list of tuples, where each tuple contains paths to initial instruction files
+                               forming one combination across the provided directories.
+
+    Raises:
+        ValueError: If any directory does not exist, is empty, or if directories contain inconsistent numbers of files.
+    """
+    all_instr_paths = []
+
+    for dir_path in init_instr_dirs:
+        # Check if directory exists
+        if not os.path.exists(dir_path) or not os.path.isdir(dir_path):
+            raise ValueError(f"Directory does not exist: {dir_path}")
+
+        instr_files = load_instructions(dir_path)
+
+        # Check if directory is empty
+        if not instr_files:
+            raise ValueError(f"Directory is empty: {dir_path}")
+
+        full_paths = [os.path.join(dir_path, file_name) for file_name in instr_files]
+        all_instr_paths.append(full_paths)
+
+    # Check for inconsistent file counts across directories
+    if len(set(map(len, all_instr_paths))) != 1:
+        raise ValueError("Directories contain inconsistent numbers of files.")
+
+    # Generate all combinations of instruction paths across the directories
+    return list(itertools.product(*all_instr_paths))

@@ -6,6 +6,8 @@ from unittest.mock import patch
 import os
 from llm_eval.service import load_instructions, compile_party_config, conduct_chat_session
 from llm_party.model.session_models import ChatSession
+from llm_eval.service import make_init_instr_lists
+
 
 
 class TestChatSession(unittest.TestCase):
@@ -82,6 +84,48 @@ class TestChatSession(unittest.TestCase):
         for file_name in os.listdir(output_dir):
             os.remove(os.path.join(output_dir, file_name))
         os.rmdir(output_dir)
+
+
+class TestMakeInitInstrLists(unittest.TestCase):
+    @patch('llm_eval.service.os.path.isdir')
+    @patch('llm_eval.service.os.path.exists')
+    @patch('llm_eval.service.load_instructions')
+    def test_make_init_instr_lists_success(self, mock_load_instructions, mock_exists, mock_isdir):
+        # Setup mocks to simulate existing directories
+        mock_exists.return_value = True
+        mock_isdir.return_value = True
+        # Mocking the load_instructions method to return predefined file contents
+        mock_load_instructions.side_effect = [
+            ["file11.md", "file12.md"],  # Mock return value for "path/to/dir1"
+            ["file21.md", "file22.md"]   # Mock return value for "path/to/dir2"
+        ]
+
+        init_instr_dirs = ["path/to/dir1", "path/to/dir2"]
+        expected_output = [
+            ("path/to/dir1/file11.md", "path/to/dir2/file21.md"),
+            ("path/to/dir1/file11.md", "path/to/dir2/file22.md"),
+            ("path/to/dir1/file12.md", "path/to/dir2/file21.md"),
+            ("path/to/dir1/file12.md", "path/to/dir2/file22.md")
+        ]
+
+        result = make_init_instr_lists(init_instr_dirs)
+        self.assertEqual(result, expected_output)
+
+    @patch('llm_eval.service.os.path.exists', return_value=False)
+    def test_directory_does_not_exist_error(self, mock_exists):
+        with self.assertRaises(ValueError) as context:
+            make_init_instr_lists(["non/existent/dir"])
+        self.assertTrue("Directory does not exist" in str(context.exception))
+
+    @patch('llm_eval.service.os.path.exists', return_value=True)
+    @patch('llm_eval.service.os.path.isdir', return_value=True)
+    @patch('llm_eval.service.load_instructions', return_value=[])
+    def test_empty_directory_error(self, mock_load_instructions, mock_isdir, mock_exists):
+        with self.assertRaises(ValueError) as context:
+            make_init_instr_lists(["empty/dir"])
+        self.assertTrue("Directory is empty" in str(context.exception))
+
+    # Additional tests can be added for other error conditions, such as inconsistent file counts.
 
 if __name__ == '__main__':
     unittest.main()
