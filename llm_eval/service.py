@@ -118,9 +118,5 @@ def make_init_instr_lists(init_instr_dirs: List[str]) -> List[Tuple[str, ...]]:
         full_paths = [os.path.join(dir_path, file_name) for file_name in instr_files]
         all_instr_paths.append(full_paths)
 
-    # Check for inconsistent file counts across directories
-    if len(set(map(len, all_instr_paths))) != 1:
-        raise ValueError("Directories contain inconsistent numbers of files.")
-
     # Generate all combinations of instruction paths across the directories
     return list(itertools.product(*all_instr_paths))
