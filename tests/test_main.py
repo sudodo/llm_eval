@@ -43,13 +43,13 @@ class TestChatSession(unittest.TestCase):
     def test_conduct_chat_session(self):
         with open(self.party_conf, 'r') as file:
             party_conf_dict = yaml.safe_load(file)
-        test_conf = {'num_rounds': 2}
+        exp_conf = {'num_rounds': 2}
         output_dir = 'test_output'
         os.makedirs(output_dir, exist_ok=True)
 
         with patch('llm_eval.main.start_session') as mock_start_session:
             mock_start_session.return_value = ChatSession(), ""
-            conduct_chat_session(party_conf_dict, test_conf, output_dir, verbose=False)
+            conduct_chat_session(party_conf_dict, exp_conf, output_dir, verbose=False)
 
         # Check if the correct number of rounds were conducted
         self.assertEqual(mock_start_session.call_count, 2)
@@ -68,13 +68,13 @@ class TestChatSession(unittest.TestCase):
     def test_conduct_chat_session_default_rounds(self):
         with open(self.party_conf, 'r') as file:
             party_conf_dict = yaml.safe_load(file)
-        test_conf = {}
+        exp_conf = {}
         output_dir = 'test_output'
         os.makedirs(output_dir, exist_ok=True)
 
         with patch('llm_eval.main.start_session') as mock_start_session:
             mock_start_session.return_value = ChatSession(), ""
-            conduct_chat_session(party_conf_dict, test_conf, output_dir, verbose=False)
+            conduct_chat_session(party_conf_dict, exp_conf, output_dir, verbose=False)
 
         # Check if the default number of rounds (3) were conducted
         self.assertEqual(mock_start_session.call_count, 3)

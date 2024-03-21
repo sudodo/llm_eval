@@ -48,7 +48,7 @@ def compile_party_config(party_conf: str, init_instr: List[str]) -> Dict:
 
 import datetime  # Add this import at the beginning of your file
 
-def conduct_chat_session(party_conf_dict: Dict, test_conf: Dict, output_dir: str, verbose: bool):
+def conduct_chat_session(party_conf_dict: Dict, exp_conf: Dict, output_dir: str, verbose: bool):
     """
     Conduct a chat session based on the party configuration and test configuration, saving the session and configuration to files.
 
@@ -56,7 +56,7 @@ def conduct_chat_session(party_conf_dict: Dict, test_conf: Dict, output_dir: str
 
     Args:
         party_conf_dict (Dict): Compiled party configuration dictionary. This dictionary should include the configuration for each attendee of the chat session, such as their roles, initial instructions, and any other relevant settings.
-        test_conf (Dict): Test configuration dictionary. This dictionary specifies the parameters for the chat session. Key parameters include:
+        exp_conf (Dict): Test configuration dictionary. This dictionary specifies the parameters for the chat session. Key parameters include:
             - 'num_rounds' (int): The number of chat rounds to be conducted. If not specified, defaults to 3.
             - Other parameters can be included based on the requirements of the `llm_party` library or specific test scenarios.
         output_dir (str): Directory to save output files. This includes the chat session history and the party configuration, both appended with a timestamp for uniqueness.
@@ -75,7 +75,7 @@ def conduct_chat_session(party_conf_dict: Dict, test_conf: Dict, output_dir: str
     file_path_of_party_conf_dict = os.path.join(output_dir, f'party_conf_{timestamp}.yaml')
 
     # Start the chat session
-    num_rounds = test_conf.get('num_rounds', 3)
+    num_rounds = exp_conf.get('num_rounds', 3)
     for _ in range(num_rounds):
         chat_session, _ = start_session(party_conf_dict, output=print if verbose else None)
 
@@ -99,14 +99,14 @@ def main():
 
     Command-line arguments:
         --party-conf, -p: Configuration file for llm_party library (required).
-        --test-conf, -t: Configuration file for the test (required).
+        --exp-conf, -t: Configuration file for the test (required).
         --init-instr-dir, -i: Directory containing initial instructions for AI agents (required).
         --verbose, -v: Enable verbose mode (optional).
         --output-dir, -o: Directory to save output files (optional, default: current directory).
     """
     parser = argparse.ArgumentParser(description='Conduct a chat session between two AI agents.')
     parser.add_argument('--party-conf', '-p', type=str, required=True, help='Configuration file for llm_party library')
-    parser.add_argument('--test-conf', '-t', type=str, required=True, help='Configuration file for the test')
+    parser.add_argument('--exp-conf', '-t', type=str, required=True, help='Configuration file for the test')
     parser.add_argument('--init-instr-dir', '-i', type=str, required=True, help='Directory containing initial instructions for AI agents')
     parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose mode')
     parser.add_argument('--output-dir', '-o', type=str, default='.', help='Directory to save output files')
@@ -120,9 +120,9 @@ def main():
     party_conf_dict = compile_party_config(args.party_conf, init_instr)
 
     # Load the test configuration
-    with open(args.test_conf, 'r') as file:
-        test_conf = yaml.safe_load(file)
+    with open(args.exp_conf, 'r') as file:
+        exp_conf = yaml.safe_load(file)
 
     # Conduct the chat session based on the test configuration
-    conduct_chat_session(party_conf_dict, test_conf, args.output_dir, args.verbose)
+    conduct_chat_session(party_conf_dict, exp_conf, args.output_dir, args.verbose)
 
