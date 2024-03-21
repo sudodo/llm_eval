@@ -65,7 +65,7 @@ def load_instructions(init_instr_dir: str) -> List[str]:
             instructions.append(file.read())
     return instructions
 
-def compile_party_config(party_conf: str, init_instr: List[str]) -> Dict:
+def compile_party_config(party_conf: str, init_instr_list: List[str]) -> Dict:
     """
     Compile the configuration for the llm_party library by merging initial instructions.
 
@@ -79,7 +79,9 @@ def compile_party_config(party_conf: str, init_instr: List[str]) -> Dict:
     with open(party_conf, 'r') as file:
         party_conf_dict = yaml.safe_load(file)
 
-    for i, instr in enumerate(init_instr):
+    # TODO: Handle case where the number of attendees does not match the length of init_instr_list
+
+    for i, instr in enumerate(init_instr_list):
         party_conf_dict['attendees'][i]['instruction']['text'] = instr
 
     return party_conf_dict
